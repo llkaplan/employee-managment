@@ -18,15 +18,17 @@ var connection = mysql.createConnection({
 connection.connect(function (err) {
     if (err) throw err;
     console.log("connected as id " + connection.threadId + "\n");
-    createProduct();
 });
+
+
+
 
 const questions = [
     {
         type: 'list',
-        message: 'What would you like to do next?',
-        name: 'addingEmployee',
-        choices: ["add employee", "edit employee", "add a department", "View all employees", "view employees in specific department"],
+        message: 'What would you like to do?',
+        name: 'allOptions',
+        choices: ["add employee", "edit employee", "add a department", "view all employees", "view employees in specific department"],
     },
     {
         type: 'list',
@@ -35,6 +37,7 @@ const questions = [
         choices: ["Other", "Marketing", "Administration"],
     }
 ];
+
 
 const addEmployeeQuestions = [
     {
@@ -122,35 +125,56 @@ function specificDepartmentFunction() {
         )
 }
 
-let questionSelected = (QSanswer) => {
-    switch (QSanswer) {
-        case "add employee":
-            addEmployeeFunction();
-            break;
-        case "edit employee":
-            //need to use mySQL npm for this part to pull and edit information based on employee input
-            break;
-        case "add a department":
-            addDepartmentFunction();
-            break;
-        case "View all employees":
-            // need to add in values from database to console.table
-            //  console.table([john, jane, emily], ["firstName"]);
-            break;
-        case "view employees in specific department":
-            specificDepartmentFunction();
-            break;
-        default:
-            text = "How did you get this error from a multiple choice question?";
-    }
+function editEmployee() {
+    inquirer
+        .prompt([
+            {
+                type: 'name',
+                name: 'idNumber',
+                message: "Which employee would you like to change (type ID number)?",
+                default: 'Write here please',
+            },
+        ])
+        .then(answers => {
+            connection.query("SELECT * FROM employee", function (err, result) {
+                if (err) throw err;
+                console.log(result);
+              });
+            console.log(answers);
+        }
+        )
 }
+
+
 
 inquirer
     .prompt([
         questions[0]
     ])
-    .then(answers => {
-        questionSelected(answers)
-        // need to get information from database
+    .then(answer => {
+        switch (answer) {
+            case "add employee":
+                addEmployeeFunction();
+                break;
+            case "edit employee":
+                //need to use mySQL npm for this part to pull and edit information based on employee input
+                connection.query("SELECT * FROM employee", function (err, result) {
+                    if (err) throw err;
+                    console.log(result);
+                  });
+                break;
+            case "add a department":
+                addDepartmentFunction();
+                break;
+            case "view all employees":
+                // need to add in values from database to console.table
+                //  console.table([john, jane, emily], ["firstName"]);
+                break;
+            case "view employees in specific department":
+                specificDepartmentFunction();
+                break;
+            default:
+                text = "How did you get this error from a multiple choice question?";
+        }
     }
     )
