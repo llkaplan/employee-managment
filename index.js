@@ -87,7 +87,6 @@ function addEmployeeFunction() {
             addEmployeeQuestions[2],
         ])
         .then(answers => {
-            "UPDATE MyGuests SET lastname='Doe' WHERE id=2"
             connection.query("INSERT into employee (employeeName, role_id, manager_id) VALUES (?, ?, ?)", [answer.employeeName, answer.employeePosition, answer.managerName], function (err, res) {
                 if (err) throw err;
                 // Log all results of the SELECT statement
@@ -125,6 +124,38 @@ function specificDepartmentFunction() {
         )
 }
 
+
+const editEmployeePositionQuestion = [
+    {
+        type: 'list',
+        message: 'What is their new position?',
+        name: 'positionName',
+        choices: ["administrator", "marketer", "manager"],
+    },
+];
+
+const newNameQuestions = [
+    {
+        type: 'name',
+        name: 'firstName',
+        message: "What's their firstname?",
+        default: 'Write here please',
+    },
+    {
+        type: 'name',
+        name: 'lastName',
+        message: "What's their lastname?",
+        default: 'Write here please',
+    },
+    {
+        type: 'list',
+        message: 'Which Position are they?',
+        name: 'positionName',
+        choices: ["administrator", "marketer", "manager"],
+    }
+];
+
+
 function editEmployee() {
     inquirer
         .prompt([
@@ -134,13 +165,27 @@ function editEmployee() {
                 message: "Which employee would you like to change (type ID number)?",
                 default: 'Write here please',
             },
+            {
+                type: 'list',
+                name: 'updateItem',
+                message: "What would you like to update?",
+                choices: ["name", "position"],
+            }
         ])
         .then(answers => {
-            connection.query("SELECT * FROM employee", function (err, result) {
-                if (err) throw err;
-                console.log(result);
-              });
-            console.log(answers);
+
+            let idNum = answers.idNumber;
+            var sqlDB = `UPDATE employee SET role_ID id=${idNum}`;
+
+            if (answer.updateItem === "position") {
+                connection.query(sqlDB, function (err, result) {
+                    if (err) throw err;
+                    console.log(result);
+                });
+
+            }
+            var sql = mysql.format(sqlDB, [id])
+        
         }
         )
 }
@@ -161,7 +206,7 @@ inquirer
                 connection.query("SELECT * FROM employee", function (err, result) {
                     if (err) throw err;
                     console.log(result);
-                  });
+                });
                 break;
             case "add a department":
                 addDepartmentFunction();
